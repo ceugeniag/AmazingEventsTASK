@@ -1,0 +1,39 @@
+
+//Aca deberia filtrar:
+function filtrarListaPast (lista){
+    let pastEvents = [];
+    for (let event of data.events){
+        if( event.date < lista.currentDate){
+        pastEvents.push(event);
+        }   
+    }   return pastEvents;
+}
+const past= filtrarListaPast(data)
+console.log(past)
+
+//Aca creo la card :
+function crearTarjetaConInner(event){
+    const template= 
+    `
+    <div class="card p-3  m-3" style="width: 20rem;">
+    <img src="${event.image}" class="card-img-top" alt="${event.name}">
+    <div class="card-body">
+        <h5 class="card-title"> ${ event.name } </h5>
+        <p class="card-text">${ event.date }</p>
+        <a href="./details.html" class="btn btn-danger">More details</a>
+        </div>
+    </div> ` 
+    return template;
+}
+
+//BUCLE:
+let templateAcumuladas="";
+for(let event of past){
+    templateAcumuladas += crearTarjetaConInner(event)
+}
+////Busco la section donde esta lo que quiero agregar
+const section = document.getElementById( "sectionPast" )
+
+
+//Reasignar el valor a section
+sectionPast.innerHTML=templateAcumuladas;
