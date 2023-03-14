@@ -1,16 +1,37 @@
+const section = document.getElementById( "sectionPast" );
+const $checkbox = document.getElementById( "check" );
+const $search= document.getElementById("search");
+const objetoDatos = fetch("https://mindhub-xj03.onrender.com/api/amazing");
 
-//Aca deberia filtrar:
-function filtrarListaPast (lista){
-    let pastEvents = [];
-    for (let event of data.events){
-        if( event.date < lista.currentDate){
-        pastEvents.push(event);
-        }   
-    }   return pastEvents;
+
+objetoDatos.then(response => response.json()).then(data => {
+    const past= filtrarListaPast(data)
+    const listaCategory = Array.from(new Set(past.map(category => category.category)))
+    const categorias= listaCategory.reduce( (acc, category) => acc += `
+    <label class="form-check-label px-3" for="flexCheckChecked"> ${category}</label> <input class="form-check-input " type="checkbox" value="${category}" id="flexCheckChecked" >`, '')
+    $checkbox.innerHTML+= categorias
+    function filtrarListaPast (lista){
+        let pastEvents = [];
+        for (let event of data.events){
+            if( event.date < lista.currentDate){
+            pastEvents.push(event);
+            }   
+        }   return pastEvents;
+    }
+    pintarTarjetas(past, sectionPast)
+    $checkbox.addEventListener("change", e => {
+        const filtrado = filtroCruzado()
+        pintarTarjetas(filtrado, sectionPast)
+    })
+    $search.addEventListener('input', e=>{
+        const filtrado = filtroCruzado()
+        pintarTarjetas(filtrado, sectionPast)
+    })
+    function filtroCruzado(){
+        return filtroPalabras(filtroCheck(past))
 }
-const past= filtrarListaPast(data)
-
-
+})
+.catch(error=> console.log(error));
 
 //Aca creo la card :
 function crearTarjetaConInner(event){
@@ -39,42 +60,8 @@ function pintarTarjetas( lista, elemento ){
     elemento.innerHTML = template
 } 
 
-
-
-////Busco la section donde esta lo que quiero agregar
-const section = document.getElementById( "sectionPast" )
-
-
 //Reasignar el valor a section
 sectionPast.innerHTML=templateAcumuladas;
-
-
-
-//------------------------- AHORA FILTROS ---------------------------
-
-
-//Busco la section donde esta lo que quiero agregar
-const $checkbox = document.getElementById( "check" );
-
-
-//Creo la lista de categorias
-const listaCategory = Array.from(new Set(past.map(category => category.category)))
-
-
-// las llevo al html
-const categorias= listaCategory.reduce( (acc, category) => acc += `
-<label class="form-check-label px-3" for="flexCheckChecked"> ${category}</label> <input class="form-check-input " type="checkbox" value="${category}" id="flexCheckChecked" >`, '')
-$checkbox.innerHTML+= categorias
-
-
-//Aca creo el evento
-$checkbox.addEventListener("change", e => {
-    const filtrado = filtroCruzado()
-    pintarTarjetas(filtrado, sectionPast)
-})
-
-pintarTarjetas(past, sectionPast)
-
 
 // Aca armo la funcion  para filtrar con los checks
 function filtroCheck(listaEventos){
@@ -87,25 +74,9 @@ function filtroCheck(listaEventos){
     }
 }
 
-//Busco del html
-const $search= document.getElementById("search");
-
-
-//creo el evento y le aplico el filtrado
-$search.addEventListener('input', e=>{
-    const filtrado = filtroCruzado()
-    pintarTarjetas(filtrado, sectionPast)
-})
-
 //Esta funcion me va capturando letra por letra
-
 function filtroPalabras(lista) {
     const ingresaUsuario = $search.value.toLowerCase();
     const filtro= lista.filter(event=> event.name.toLowerCase().includes(ingresaUsuario))
     return filtro;
-}
-
-//Filtro cruzado a ver que onda
-function filtroCruzado(){
-        return filtroPalabras(filtroCheck(past))
 }

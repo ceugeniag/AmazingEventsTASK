@@ -1,13 +1,37 @@
-//Aca deberia filtrar:
-function filtrarListaFuture (lista){
-    let futureEvents = [];
-    for (let event of data.events){
-        if( event.date > lista.currentDate){
-        futureEvents.push(event);
-        }   
-    }   return futureEvents;
+const section = document.getElementById( "sectionFuture" )
+const $checkbox = document.getElementById( "check" );
+const $search= document.getElementById("search");
+const objetoDatos = fetch("https://mindhub-xj03.onrender.com/api/amazing");
+
+
+objetoDatos.then(response => response.json()).then(data => {
+    const future= filtrarListaFuture(data)
+    const listaCategory = Array.from(new Set(future.map(category => category.category)))
+    const categorias= listaCategory.reduce( (acc, category) => acc += `
+    <label class="form-check-label px-3" for="flexCheckChecked"> ${category}</label> <input class="form-check-input " type="checkbox" value="${category}" id="flexCheckChecked" >`, '')
+    $checkbox.innerHTML+= categorias
+    function filtrarListaFuture (lista){
+        let futureEvents = [];
+        for (let event of data.events){
+            if( event.date > lista.currentDate){
+            futureEvents.push(event);
+            }   
+        }   return futureEvents; 
+    }
+    $checkbox.addEventListener("change", e => {
+        const filtrado = filtroCruzado()
+        pintarTarjetas(filtrado, section)
+    })
+    pintarTarjetas(future, sectionFuture)
+    $search.addEventListener('input', e=>{
+        const filtrado = filtroCruzado()
+        pintarTarjetas(filtrado, sectionFuture)
+    })
+    function filtroCruzado(){
+        return filtroPalabras(filtroCheck(future))
 }
-const future= filtrarListaFuture(data)
+})
+.catch(error=> console.log(error));
 
 //Aca creo la card :
 function crearTarjetaConInner(event){
@@ -23,53 +47,18 @@ function crearTarjetaConInner(event){
     </div> ` 
     return template;
 }
-
 //BUCLE:
 let templateAcumuladas="";
 for(let event of future){
     templateAcumuladas += crearTarjetaConInner(event)
 }
-
 function pintarTarjetas( lista, elemento ){
     let template = ''
     lista.forEach( personaje => template += crearTarjetaConInner( personaje ) )
     elemento.innerHTML = template
 }
-
-
-////Busco la section donde esta lo que quiero agregar
-const section = document.getElementById( "sectionFuture" )
-
-
 //Reasignar el valor a section
 sectionFuture.innerHTML=templateAcumuladas;
-
-
-//------------------------- AHORA FILTROS ---------------------------
-
-
-//Busco la section donde esta lo que quiero agregar
-const $checkbox = document.getElementById( "check" );
-
-
-//Creo la lista de categorias
-const listaCategory = Array.from(new Set(future.map(category => category.category)))
-
-
-// las llevo al html
-const categorias= listaCategory.reduce( (acc, category) => acc += `
-<label class="form-check-label px-3" for="flexCheckChecked"> ${category}</label> <input class="form-check-input " type="checkbox" value="${category}" id="flexCheckChecked" >`, '')
-$checkbox.innerHTML+= categorias
-
-
-//Aca creo el evento
-$checkbox.addEventListener("change", e => {
-    const filtrado = filtroCruzado()
-    pintarTarjetas(filtrado, sectionFuture)
-})
-
-pintarTarjetas(future, sectionFuture)
-
 
 // Aca armo la funcion  para filtrar con los checks
 function filtroCheck(listaEventos){
@@ -81,26 +70,9 @@ function filtroCheck(listaEventos){
         return  listaEventos.filter(event => arraycheckbox.includes(event.category))
     }
 }
-
-//Busco del html
-const $search= document.getElementById("search");
-
-
-//creo el evento y le aplico el filtrado
-$search.addEventListener('input', e=>{
-    const filtrado = filtroCruzado()
-    pintarTarjetas(filtrado, sectionFuture)
-})
-
 //Esta funcion me va capturando letra por letra
-
 function filtroPalabras(lista) {
     const ingresaUsuario = $search.value.toLowerCase();
     const filtro= lista.filter(event=> event.name.toLowerCase().includes(ingresaUsuario))
     return filtro;
-}
-
-//Filtro cruzado a ver que onda
-function filtroCruzado(){
-        return filtroPalabras(filtroCheck(future))
 }

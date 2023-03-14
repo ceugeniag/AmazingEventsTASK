@@ -1,12 +1,13 @@
-
 const $conteinerDetails = document.getElementById("CardDetails")
+const objetoDatosDetails = fetch("https://mindhub-xj03.onrender.com/api/amazing");
 
-const params = new URLSearchParams(location.search)
-
-const id = params.get("id")
-
-//Comparar los id
-let eventDetail = data.events.find(element => element._id === id);
+objetoDatosDetails.then(response => response.json()).then(data => {
+    const params = new URLSearchParams(location.search)
+    const id = params.get("id")
+    let eventDetail = data.events.find(element => element._id == id);
+    pintarTarjetasDetais(eventDetail, $conteinerDetails)
+})
+.catch(error=> console.log(error));
 
 
 function cardconDetail (events){
@@ -26,10 +27,8 @@ function cardconDetail (events){
     </div>
 </div>`
 }
-
 function pintarTarjetasDetais(lista, elemento){
     let template = ""
     template += cardconDetail(lista)
     elemento.innerHTML = template
 }
-pintarTarjetasDetais(eventDetail, $conteinerDetails)
